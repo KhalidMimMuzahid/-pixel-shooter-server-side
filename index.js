@@ -133,7 +133,7 @@ async function run() {
       const result = await reviewCollection.deleteOne(query);
       res.send(result);
     });
-    app.get("/myreviews");
+    app.get("/myreviews", async (req, res) => {});
   } finally {
   }
 }
