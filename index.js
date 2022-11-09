@@ -24,9 +24,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     const serviceCollection = client.db("services").collection("service");
-    const serviceCollectiontest = client
-      .db("servicestest")
-      .collection("servicetest");
+    const reviewCollection = client.db("reviews").collection("review");
     // create an array of documents to insert
     // const docs = [
     //   {
@@ -110,6 +108,29 @@ async function run() {
       const result = await serviceCollection.insertOne(service);
       // const result = await serviceCollectiontest.insertOne(service);
       console.log(result);
+      res.send(result);
+    });
+    app.post("/addreview", async (req, res) => {
+      const review = req.body;
+      const result = await reviewCollection.insertOne(review);
+      res.send(result);
+    });
+    app.get("/reviews", async (req, res) => {
+      const serviceId = req.headers.serviceid;
+
+      const query = { serviceId: serviceId };
+
+      const cursor = reviewCollection.find(query);
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+    app.delete("/removereview/:id", async (req, res) => {
+      const reviewId = req.params.id;
+
+      const query = {
+        _id: ObjectId(reviewId),
+      };
+      const result = await reviewCollection.deleteOne(query);
       res.send(result);
     });
   } finally {
