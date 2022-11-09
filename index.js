@@ -133,7 +133,9 @@ async function run() {
       const result = await reviewCollection.deleteOne(query);
       res.send(result);
     });
-    app.get("/myreviews", async (req, res) => {});
+    app.get("/myreviews/:id", async (req, res) => {
+      console.log(req.params.id);
+    });
   } finally {
   }
 }
