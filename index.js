@@ -9,7 +9,7 @@ const port = process.env.port || 5000;
 app.use(cors());
 app.use(express.json());
 app.get("/test", (req, res) => {
-  res.send("surver is running new update xxxxxxxxxxxx");
+  res.send("surver is running new update");
 });
 
 const user = process.env.DB_USER;
