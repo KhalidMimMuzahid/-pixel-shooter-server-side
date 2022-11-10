@@ -1,6 +1,7 @@
 const express = require("express");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const cors = require("cors");
+const jwt = require("jsonwebtoken");
 const app = express();
 require("dotenv").config();
 const port = process.env.port || 5000;
@@ -25,60 +26,36 @@ async function run() {
   try {
     const serviceCollection = client.db("services").collection("service");
     const reviewCollection = client.db("reviews").collection("review");
-    // create an array of documents to insert
-    // const docs = [
-    //   {
-    //     title: "Wildlife Photography",
-    //     price: 500,
-    //     thumbnail: "https://i.ibb.co/ZTHVTqf/wildlife-photography.jpg",
-    //     rating: 5,
-    //     description:
-    //       "The genre of photography that focuses on animals and their natural habitat is called wildlife photography. Animal behaviors in wild are also capture by wildlife photographer. Mostly these pictures are captured to be printed in journals or exhibitions. Many people practice this type of photography. Apart from a good camera, several lens, strong flashlight, you need patience to click the right picture.",
-    //   },
-    //   {
-    //     title: "Sports / Action Photography",
-    //     price: 300,
-    //     thumbnail: "https://i.ibb.co/m0dqTgH/sports-photography.jpg",
-    //     rating: 4.8,
-    //     description:
-    //       "This genre of photography specializes in capturing a decisive moment in an event of sports. Sports photography is one of the difficult types of photography. It requires practice along with the various equipments.",
-    //   },
-    //   {
-    //     title: "Portrait Photography",
-    //     price: 200,
-    //     thumbnail: "https://i.ibb.co/pj1X6ZP/portrait-photography.jpg",
-    //     rating: 4.5,
-    //     description:
-    //       "One of the oldest types of photography is portrait photography. It can range from shooting your family members to friends to pets. It is often called portraiture and this type of photographer abounds.",
-    //   },
-    //   {
-    //     title: "Wedding Photography/Event Photography",
-    //     price: 250,
-    //     thumbnail: "https://i.ibb.co/ZfTwPKF/wedding-event-photography.jpg",
-    //     rating: 4.7,
-    //     description:
-    //       "It is said that a newcomer in professional photography begins his/her career by practicing a wedding or event photography. But that does not mean that this type of photographer does not require and any skill. A person dealing in this type of photography has to be an expert in portraiture and extremely good editing skills. The demand for wedding photography or event photography is more.",
-    //   },
-    //   {
-    //     title: "Fashion Photography",
-    //     price: 300,
-    //     thumbnail: "https://i.ibb.co/Fnw0Ckh/fashion-photography.jpg",
-    //     rating: 4.9,
-    //     description:
-    //       "Fashion photography captures models in a glamorous light display fashion items such as clothes, shoes and other accessories. This type of photography is conducted mostly for advertisements and fashion magazines.",
-    //   },
-    //   {
-    //     title: "Nature Photography",
-    //     price: 250,
-    //     thumbnail: "https://i.ibb.co/Qpb2gcK/nature-photography.jpg",
-    //     rating: 5,
-    //     description:
-    //       "Natural photography comprises of pictures of nature as viewed from the eyes of the photographer. Contrary to what many people believe, nature photography is not only restricted to capturing the images of trees and plants, but rather includes any outdoor natural aspect including hills, water bodies and even the sky.",
-    //   },
-    // ];
-    // const options = { ordered: true };
-    // const result = await serviceCollection.insertMany(docs, options);
-    // console.log(result);
+
+    app.post("/jwt", (req, res) => {
+      const user = req.body;
+      // console.log("user fuck", user);
+      const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: "5h",
+      });
+      console.log({ token });
+      res.send({ token });
+    });
+
+    const verifyJWT = (req, res, next) => {
+      if (!req.headers.authorization) {
+        console.log("before step 1 , authorization is here");
+        return res.status(401).send("unauthorised access");
+      }
+      const token = req.headers.authorization.split(" ")[1];
+
+      jwt.verify(
+        token,
+        process.env.ACCESS_TOKEN_SECRET,
+        function (err, decoded) {
+          if (err) {
+            return res.status(403).send("forbidden access");
+          }
+          req.decoded = decoded;
+          next();
+        }
+      );
+    };
 
     app.get("/services", async (req, res) => {
       const query = {};
