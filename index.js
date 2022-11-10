@@ -113,8 +113,8 @@ async function run() {
     app.get("/myreviews/:id", verifyJWT, async (req, res) => {
       const reviewerUid = req.params.id;
       if (req.decoded.userUid != req.params.id) {
-        console.log(" unauthorised acces ..");
-        return res.status(403).send("unauthorised access  ..");
+        console.log(" unauthorised acces ");
+        return res.status(403).send("unauthorised access");
       }
       const query = { reviewerUid: reviewerUid };
       const cursor = reviewCollection.find(query);
