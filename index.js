@@ -134,7 +134,53 @@ async function run() {
       res.send(result);
     });
     app.get("/myreviews/:id", async (req, res) => {
-      console.log(req.params.id);
+      const reviewerUid = req.params.id;
+
+      const query = { reviewerUid: reviewerUid };
+      const cursor = reviewCollection.find(query);
+      const result = await cursor.toArray();
+      // console.log(result);
+      res.send(result);
+    });
+    app.put("/updatereview", async (req, res) => {
+      let updateReviewInfo = req.body;
+      const {
+        _id,
+        rating,
+        message,
+        reviewerName,
+        reviewerEmail,
+        reviewerUid,
+        reviewerPhoto,
+        serviceId,
+        serviceThumbnail,
+        title,
+      } = updateReviewInfo;
+
+      updateReviewInfo = {
+        rating,
+        message,
+        reviewerName,
+        reviewerEmail,
+        reviewerUid,
+        reviewerPhoto,
+        serviceId,
+        serviceThumbnail,
+        title,
+      };
+      const filter = { _id: ObjectId(_id) };
+
+      const options = { upsert: true };
+      // create a document that sets the plot of the movie
+      const updateDoc = {
+        $set: updateReviewInfo,
+      };
+      const result = await reviewCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+      res.send(result);
     });
   } finally {
   }
